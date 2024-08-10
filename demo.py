@@ -1,11 +1,11 @@
 from utilities.functions import *
-
-image_path = "star.png"
+from utilities.config import *
+image_path = "car.png"
 img = cv2.imread(image_path)
 p = 1
 w = int(img.shape[1] * p)
 h = int(img.shape[0] * p)
-edge = cv2.Canny(img,100,200)
+edge = cv2.Canny(img, thresh1, thresh2)
 
 x, y, pts = create_point_list(edge)
 adj_matrix = create_adj_matrix(pts, 1, 2)
@@ -17,7 +17,7 @@ real, imaginary = [node[0] for node in node_stack], [node[1] for node in node_st
 complex_array = np.vectorize(complex)(real, imaginary)
 fourier_array = np.fft.fft(complex_array)
 
-sample_freq = 500
+
 N = len(complex_array)
 T = 1/sample_freq
 t = np.linspace(0.0, N*T, N)
@@ -27,7 +27,6 @@ reordered_array, index = reorder_fft_array(normalized_array)
 
 theta = np.angle(reordered_array)
 omega = 2*np.pi*index
-ratio = 10
 time_array = np.linspace(0,5,1000)
 point_array = [(0, 0)] * len(time_array)
 count = 0
@@ -37,16 +36,16 @@ for time in time_array:
     # canvas = cv2.resize(edge.copy(), (int(w*ratio), int(h*ratio)))
     X = 0
     Y = 0
-    for i in range(1000):
+    for i in range(len(index)): #change this to change the number of frequencies used for reconstruction
         radius = abs(reordered_array[i])
         prev_X = X
         prev_Y = Y
         X = X + radius * np.cos(theta[i] + omega[i] * time)
         Y = Y + radius * np.sin(theta[i] + omega[i] * time)
-        canvas = cv2.line(canvas, (int(prev_X*ratio), int(prev_Y*ratio)), (int(X*ratio), int(Y*ratio)), (225, 225, 225), 10)
+        canvas = cv2.line(canvas, (int(prev_X*ratio), int(prev_Y*ratio)), (int(X*ratio), int(Y*ratio)), (225, 225, 225), int(1*ratio))
     point_array[count] = (int(X*ratio), int(Y*ratio))
     for i in range(len(time_array)):
-        canvas = cv2.circle(canvas, point_array[i], 20, (225, 225, 225), -1)
+        canvas = cv2.circle(canvas, point_array[i], int(2*ratio), (225, 225, 225), -1)
     count += 1
     canvas = cv2.resize(canvas, (w, h))
     cv2.imshow("", canvas)
