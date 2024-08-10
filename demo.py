@@ -1,6 +1,7 @@
 from utilities.functions import *
 
-img = cv2.imread("star.png")
+image_path = "star.png"
+img = cv2.imread(image_path)
 p = 1
 w = int(img.shape[1] * p)
 h = int(img.shape[0] * p)
