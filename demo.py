@@ -1,13 +1,19 @@
 from utilities.functions import *
-from utilities.config import *
-image_path = "car.png"
+image_path = "flag.png"
 img = cv2.imread(image_path)
-p = 1
-w = int(img.shape[1] * p)
-h = int(img.shape[0] * p)
-edge = cv2.Canny(img, thresh1, thresh2)
+p = 0.6 #reduce the size of the image to reduce computation time
+W = int(img.shape[1])
+H = int(img.shape[0])
+img = cv2.resize(img, (int(img.shape[1] * p), int(img.shape[0] * p)))
+w = int(img.shape[1])
+h = int(img.shape[0])
 
+# threshold of Canny edge detection
+thresh1 = 100
+thresh2 = 200
+edge = cv2.Canny(img, thresh1, thresh2)
 x, y, pts = create_point_list(edge)
+
 adj_matrix = create_adj_matrix(pts, 1, 2)
 dict_items = iter(adj_matrix.items())
 first_item = next(dict_items)
@@ -17,6 +23,12 @@ real, imaginary = [node[0] for node in node_stack], [node[1] for node in node_st
 complex_array = np.vectorize(complex)(real, imaginary)
 fourier_array = np.fft.fft(complex_array)
 
+# sample frequency for Fourier Transform
+sample_freq = 500
+# number of frequencies to be used in reconstruction. this is fun to play with
+num_freq = 100
+# sizing ratio to counter truncation error while converting to integer
+ratio = 10
 
 N = len(complex_array)
 T = 1/sample_freq
